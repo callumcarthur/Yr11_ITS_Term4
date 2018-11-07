@@ -1,5 +1,6 @@
-#include "blynk/blynk.h"
-#include "PietteTech_DHT.h"
+#include <ThingSpeak.h>
+#include <PietteTech_DHT.h>
+#include <blynk.h>
 
 // system defines
 #define DHTTYPE  DHT22              // Sensor type DHT11/21/22/AM2301/AM2302
@@ -34,7 +35,7 @@ const char * myWriteAPIKey = "WP6RQ1C7TZMEXDDW"; // replace with your WriteAPIKe
 
 void setup()
 {
-
+ Serial.begin(9600);
   Blynk.begin(auth);
  ThingSpeak.begin(client);
 
@@ -75,33 +76,33 @@ void loop()
   sprintf(tempInChar,"%0d.%d", (int)temp, temp1);
   Particle.publish("The temperature from the dht22 is:", tempInChar, 60, PRIVATE);
   ThingSpeak.setField(2,tempInChar);
+  ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
 
   //virtual pin 1 will be the temperature
-  Blynk.virtualWrite(V1, tempInChar);
- 
+  Blynk.virtualWrite(V2, tempInChar);
+
   //google docs can get this variable
   sprintf(resultstr, "{\"t\":%s}", tempInChar);
 
   float humid = (float)DHT.getHumidity();
   int humid1 = (humid - (int)humid) * 100;
 
-  sprintf(tempInChar,"%0d.%d", (int)humid, humid1);
-  Particle.publish("The humidity from the dht22 is:", tempInChar, 60, PRIVATE);
-  ThingSpeak.setField(3,tempInChar);
+  char humidInChar[32];
+  sprintf(humidInChar,"%0d.%d", (int)humid, humid1);
+  Particle.publish("The humidity from the dht22 is:", humidInChar, 60, PRIVATE);
+  ThingSpeak.setField(3,humidInChar);
+  ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
   //virtual pin 2 will be the humidity
-  Blynk.virtualWrite(V2, tempInChar);
+  Blynk.virtualWrite(V3, tempInChar);
 
   n++;  // increment counter
   bDHTstarted = false;  // reset the sample flag so we can take another
   DHTnextSampleTime = millis() + DHT_SAMPLE_INTERVAL;  // set the time for next sample
-  ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
  }
  
 }
 
 }
-
-
