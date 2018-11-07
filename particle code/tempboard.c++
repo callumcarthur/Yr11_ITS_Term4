@@ -6,6 +6,19 @@
 #define DHTPIN   4         	 
 #define DHT_SAMPLE_INTERVAL   60000 
 
+
+const int LIGHT_PIN = A0; 
+const int LED_PIN = 7;
+
+const int LED2_PIN = 6;
+
+const float VCC = 4.98; 
+const float R_DIV = 4660.0;
+const float DARK_THRESHOLD1 = 10000.0;
+const float DARK_THRESHOLD2 = 50000.0;
+
+
+
 void dht_wrapper();
 
 PietteTech_DHT DHT(DHTPIN, DHTTYPE, dht_wrapper);
@@ -32,6 +45,10 @@ void setup()
  Serial.begin(9600);
   Blynk.begin(auth);
  ThingSpeak.begin(client);
+  pinMode(LIGHT_PIN, INPUT);
+  pinMode(LED_PIN, OUTPUT);
+    pinMode(LED2_PIN, OUTPUT);
+
 
  DHTnextSampleTime = 0; 
  Particle.variable("result", resultstr, STRING);
@@ -68,7 +85,6 @@ void loop()
   sprintf(tempInChar,"%0d.%d", (int)temp, temp1);
   Particle.publish("The temperature from the dht22 is:", tempInChar, 60, PRIVATE);
   ThingSpeak.setField(2,tempInChar);
-//  ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
   Blynk.virtualWrite(V2, tempInChar);
 
@@ -92,4 +108,28 @@ sprintf(resultstr, "{\"t\":%s}", tempInChar);
  
 }
 
+  int lightADC = analogRead(LIGHT_PIN);
+  if (lightADC > 0)
+  {
+    float lightV = lightADC * VCC / 1023.0;
+    float lightR = R_DIV * (VCC / lightV - 1.0);
+    Serial.println("Voltage: " + String(lightV) + " V");
+    Serial.println("Resistance: " + String(lightR) + " ohms");
+
+    if (lightR >= DARK_THRESHOLD1)
+      digitalWrite(LED_PIN, HIGH);
+    else
+      digitalWrite(LED_PIN, LOW);
+      
+    if (lightR >= DARK_THRESHOLD2)
+      digitalWrite(LED2_PIN, HIGH);
+    else
+      digitalWrite(LED2_PIN, LOW);
+
+    Serial.println();
+    delay(500);
+  }
+  
 }
+
+
