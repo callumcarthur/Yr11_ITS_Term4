@@ -68,7 +68,7 @@ void loop()
   sprintf(tempInChar,"%0d.%d", (int)temp, temp1);
   Particle.publish("The temperature from the dht22 is:", tempInChar, 60, PRIVATE);
   ThingSpeak.setField(2,tempInChar);
-  ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+//  ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
   Blynk.virtualWrite(V2, tempInChar);
 
