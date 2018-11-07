@@ -2,36 +2,30 @@
 #include <PietteTech_DHT.h>
 #include <blynk.h>
 
-// system defines
-#define DHTTYPE  DHT22              // Sensor type DHT11/21/22/AM2301/AM2302
-#define DHTPIN   4         	    // Digital pin for communications
-#define DHT_SAMPLE_INTERVAL   60000  // Sample every minute
+#define DHTTYPE  DHT22        
+#define DHTPIN   4         	 
+#define DHT_SAMPLE_INTERVAL   60000 
 
-//declaration
-void dht_wrapper(); // must be declared before the lib initialization
+void dht_wrapper();
 
-// Lib instantiate
 PietteTech_DHT DHT(DHTPIN, DHTTYPE, dht_wrapper);
 
-// globals
-unsigned int DHTnextSampleTime;	    // Next time we want to start sample
-bool bDHTstarted;		    // flag to indicate we started acquisition
-int n;                              // counter
+unsigned int DHTnextSampleTime;	  
+bool bDHTstarted;		 
+int n;                    
 
-//this is coming from http://www.instructables.com/id/Datalogging-with-Spark-Core-Google-Drive/?ALLSTEPS
-char resultstr[64]; //String to store the sensor data
+char resultstr[64]; 
 
-//DANGER - DO NOT SHARE!!!!
-char auth[] = "350a04eef49446af816981dbefae2afb"; // Put your blynk token here
-//DANGER - DO NOT SHARE!!!!
+char auth[] = "350a04eef49446af816981dbefae2afb"; 
 
 char VERSION[64] = "0.04";
 
 #define READ_INTERVAL 60000
 
 TCPClient client;
-unsigned int myChannelNumber = 602495; // replace with your ChannelID
-const char * myWriteAPIKey = "WP6RQ1C7TZMEXDDW"; // replace with your WriteAPIKey
+unsigned int myChannelNumber = 602495;
+const char * myWriteAPIKey = "WP6RQ1C7TZMEXDDW"; 
+
 
 void setup()
 {
@@ -39,7 +33,7 @@ void setup()
   Blynk.begin(auth);
  ThingSpeak.begin(client);
 
- DHTnextSampleTime = 0;  // Start the first sample immediately
+ DHTnextSampleTime = 0; 
  Particle.variable("result", resultstr, STRING);
 
  Particle.publish("DHT22 - firmware version", VERSION, 60, PRIVATE);
@@ -47,8 +41,7 @@ void setup()
 }
 
 
-// This wrapper is in charge of calling
-// must be defined like this for the lib work
+
 void dht_wrapper() {
     DHT.isrCallback();
 }
@@ -56,18 +49,17 @@ void dht_wrapper() {
 void loop()
 {
 
-  Blynk.run(); // all the Blynk magic happens here
+  Blynk.run();
  
 
-  // Check if we need to start the next sample
   if (millis() > DHTnextSampleTime) {
       
-	if (!bDHTstarted) {		// start the sample
+	if (!bDHTstarted) {	
 	    DHT.acquire();
 	    bDHTstarted = true;
 	}
 
- if (!DHT.acquiring()) {		// has sample completed?
+ if (!DHT.acquiring()) {
 
   float temp = (float)DHT.getCelsius();
   int temp1 = (temp - (int)temp) * 100;
@@ -78,12 +70,9 @@ void loop()
   ThingSpeak.setField(2,tempInChar);
   ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
-
-  //virtual pin 1 will be the temperature
   Blynk.virtualWrite(V2, tempInChar);
 
-  //google docs can get this variable
-  sprintf(resultstr, "{\"t\":%s}", tempInChar);
+sprintf(resultstr, "{\"t\":%s}", tempInChar);
 
   float humid = (float)DHT.getHumidity();
   int humid1 = (humid - (int)humid) * 100;
@@ -94,13 +83,11 @@ void loop()
   ThingSpeak.setField(3,humidInChar);
   ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
-  //virtual pin 2 will be the humidity
-  Blynk.virtualWrite(V3, tempInChar);
+  Blynk.virtualWrite(V3, humidInChar);
 
-  n++;  // increment counter
-  bDHTstarted = false;  // reset the sample flag so we can take another
-  DHTnextSampleTime = millis() + DHT_SAMPLE_INTERVAL;  // set the time for next sample
-
+  n++; 
+  bDHTstarted = false;
+  DHTnextSampleTime = millis() + DHT_SAMPLE_INTERVAL;
  }
  
 }
