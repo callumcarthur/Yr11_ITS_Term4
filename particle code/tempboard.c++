@@ -13,13 +13,13 @@ const int LED_PIN = 7;
 const int LED2_PIN = 6;
 const int LED3_PIN = 5;
 
-
 const float VCC = 4.98; 
 const float R_DIV = 4660.0;
 const float DARK_THRESHOLD1 = 10000.0;
+
 const float DARK_THRESHOLD2 = 20000.0;
 const float DARK_THRESHOLD3 = 35000.0;
-
+const float DARK_THRESHOLD2 = 50000.0;
 
 
 
@@ -61,7 +61,7 @@ void setup()
   pinMode(LED_PIN, OUTPUT);
   pinMode(LED2_PIN, OUTPUT);
   pinMode(LED3_PIN, OUTPUT);
-    
+
 
 
  DHTnextSampleTime = 0; 
@@ -154,7 +154,6 @@ sprintf(resultstr, "{\"t\":%s}", tempInChar);
       digitalWrite(LED3_PIN, LOW);
     }
       
-
 
     Serial.println();
     delay(500);
