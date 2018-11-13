@@ -8,13 +8,17 @@
 
 
 const int LIGHT_PIN = A0; 
-const int LED_PIN = 7;
 
+const int LED_PIN = 7;
 const int LED2_PIN = 6;
+const int LED3_PIN = 5;
 
 const float VCC = 4.98; 
 const float R_DIV = 4660.0;
 const float DARK_THRESHOLD1 = 10000.0;
+
+const float DARK_THRESHOLD2 = 20000.0;
+const float DARK_THRESHOLD3 = 35000.0;
 const float DARK_THRESHOLD2 = 50000.0;
 
 
@@ -37,7 +41,15 @@ char VERSION[64] = "0.04";
 
 TCPClient client;
 unsigned int myChannelNumber = 602495;
+//zane
+//unsigned int myChannelNumber = 622517;
+//callum
+
+
 const char * myWriteAPIKey = "WP6RQ1C7TZMEXDDW"; 
+//zane
+//const char * myWriteAPIKey = "3FSNPVUT3LC2FOI8"; 
+//callum
 
 
 void setup()
@@ -47,7 +59,9 @@ void setup()
  ThingSpeak.begin(client);
   pinMode(LIGHT_PIN, INPUT);
   pinMode(LED_PIN, OUTPUT);
-    pinMode(LED2_PIN, OUTPUT);
+  pinMode(LED2_PIN, OUTPUT);
+  pinMode(LED3_PIN, OUTPUT);
+
 
 
  DHTnextSampleTime = 0; 
@@ -117,14 +131,29 @@ sprintf(resultstr, "{\"t\":%s}", tempInChar);
     Serial.println("Resistance: " + String(lightR) + " ohms");
 
     if (lightR >= DARK_THRESHOLD1)
+    {
       digitalWrite(LED_PIN, HIGH);
-    else
+    }
+    else{
       digitalWrite(LED_PIN, LOW);
+    }
+
       
-    if (lightR >= DARK_THRESHOLD2)
+    if (lightR >= DARK_THRESHOLD2){
       digitalWrite(LED2_PIN, HIGH);
-    else
+    }
+    else{
       digitalWrite(LED2_PIN, LOW);
+    }
+     
+            
+    if (lightR >= DARK_THRESHOLD3){
+      digitalWrite(LED3_PIN, HIGH);
+    }
+    else{
+      digitalWrite(LED3_PIN, LOW);
+    }
+      
 
     Serial.println();
     delay(500);
