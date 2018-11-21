@@ -12,17 +12,19 @@ const int LIGHT_PIN = A0;
 const int LED_PIN = 7;
 const int LED2_PIN = 6;
 const int LED3_PIN = 5;
+const int servoPin = 0;
+
+
 
 const float VCC = 4.98; 
 const float R_DIV = 4660.0;
 const float DARK_THRESHOLD1 = 10000.0;
-
 const float DARK_THRESHOLD2 = 20000.0;
 const float DARK_THRESHOLD3 = 35000.0;
-const float DARK_THRESHOLD2 = 50000.0;
+const int servo_position = 0;
 
 
-
+Servo myservo;
 void dht_wrapper();
 
 PietteTech_DHT DHT(DHTPIN, DHTTYPE, dht_wrapper);
@@ -61,7 +63,7 @@ void setup()
   pinMode(LED_PIN, OUTPUT);
   pinMode(LED2_PIN, OUTPUT);
   pinMode(LED3_PIN, OUTPUT);
-
+    
 
 
  DHTnextSampleTime = 0; 
@@ -98,11 +100,14 @@ void loop()
   char tempInChar[32];
   sprintf(tempInChar,"%0d.%d", (int)temp, temp1);
   Particle.publish("The temperature from the dht22 is:", tempInChar, 60, PRIVATE);
-  ThingSpeak.setField(2,tempInChar);
-
+  ThingSpeak.setField(2,temp);
   Blynk.virtualWrite(V2, tempInChar);
+  
+  int servo_position = temp * 4.2;
+  myservo.attach(servoPin);
+  myservo.write(servo_position);
+  Serial.println(servo_position);
 
-sprintf(resultstr, "{\"t\":%s}", tempInChar);
 
   float humid = (float)DHT.getHumidity();
   int humid1 = (humid - (int)humid) * 100;
@@ -110,7 +115,7 @@ sprintf(resultstr, "{\"t\":%s}", tempInChar);
   char humidInChar[32];
   sprintf(humidInChar,"%0d.%d", (int)humid, humid1);
   Particle.publish("The humidity from the dht22 is:", humidInChar, 60, PRIVATE);
-  ThingSpeak.setField(3,humidInChar);
+  ThingSpeak.setField(3,humid);
   ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
 
   Blynk.virtualWrite(V3, humidInChar);
@@ -127,8 +132,8 @@ sprintf(resultstr, "{\"t\":%s}", tempInChar);
   {
     float lightV = lightADC * VCC / 1023.0;
     float lightR = R_DIV * (VCC / lightV - 1.0);
-    Serial.println("Voltage: " + String(lightV) + " V");
-    Serial.println("Resistance: " + String(lightR) + " ohms");
+   // Serial.println("Voltage: " + String(lightV) + " V");
+  //  Serial.println("Resistance: " + String(lightR) + " ohms");
 
     if (lightR >= DARK_THRESHOLD1)
     {
@@ -154,6 +159,7 @@ sprintf(resultstr, "{\"t\":%s}", tempInChar);
       digitalWrite(LED3_PIN, LOW);
     }
       
+
 
     Serial.println();
     delay(500);
